@@ -32,7 +32,7 @@ Complete recommendation engine for IBM Watson Studio articles using multiple app
 - Binary user-item interaction matrix (1 if interacted, 0 otherwise)
 - Cosine similarity for finding similar users
 - Recommendation by aggregating similar users' interactions
-- Improved ranking: weight by user similarity + user activity
+- Improved ranking: weight by user similarity + user activity, then tie-break with article popularity
 - Cold-start handling for new users (fallback to popular items)
 
 **Functions:**
@@ -49,12 +49,14 @@ Complete recommendation engine for IBM Watson Studio articles using multiple app
 - **KMeans clustering with silhouette score analysis**
 - Optimal cluster selection visualization
 - Content-based recommendations using article similarity
+- Explicit article-to-article recommendations from existing article IDs
 
 **Functions:**
 - `prepare_article_content(articles_df, articles_community_df)`
 - `create_tfidf_similarity_matrix(article_df)`
 - `find_optimal_clusters(tfidf_matrix, max_clusters)`
 - `recommend_content_based(user_id, ...)`
+- `recommend_similar_articles_by_content(article_id, ...)`
 
 ### ✅ Part V: Matrix Factorization
 **Implementation:**
@@ -77,7 +79,11 @@ Complete recommendation engine for IBM Watson Studio articles using multiple app
 python -m pip install -r requirements.txt
 ```
 
-### Data Files (place in `data/` directory)
+### Data Files
+- Sample data is included in `data/` and works out-of-the-box for notebook execution.
+- You can replace these files with full project datasets if desired.
+
+Included files:
 - `user_item_interactions.csv` - User interactions with articles
 - `articles.csv` - Article metadata (id, title, etc.)
 - `articles_community.csv` - Article content/text
@@ -176,7 +182,7 @@ Used for:
 ## Project Structure
 
 ```
-recommendationsystem_ibmcommunity_project/
+data_science_recommendation_system_project/
 ├── recommendationsystem_ibmcommunity_analysis.ipynb
 ├── PROJECT_RUBRIC.md          (Detailed rubric specifications)
 ├── README.md                  (This file)
@@ -192,8 +198,9 @@ recommendationsystem_ibmcommunity_project/
 ✅ All rubric requirements implemented:
 - Complete exploratory analysis with validation tests
 - Rank-based baseline recommendations
-- User-user collaborative filtering with improvements
+- User-user collaborative filtering with weighted improvements
 - Content-based recommendations with optimal clustering
+- Content-based article-to-article recommendations from existing article IDs
 - Matrix factorization with variance analysis
 - Documentation and metrics discussion
 - A/B testing strategy defined

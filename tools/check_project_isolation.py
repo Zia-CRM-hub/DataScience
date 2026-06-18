@@ -14,7 +14,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parent.parent
 PROJECTS = [
-    "recommendationsystem_ibmcommunity_project",
+    "data_science_recommendation_system_project",
     "crisp_dm_breast_cancer_project",
     "data_science_pipeline_project",
     "data_science_dashboard_project",

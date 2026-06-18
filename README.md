@@ -8,7 +8,7 @@ This repository contains independent, portfolio-style projects. Each project has
 
 | Project | Focus Area | Main Entry Point |
 |---|---|---|
-| `recommendationsystem_ibmcommunity_project` | Recommender systems (rank-based, collaborative, content-based, SVD) | `recommendationsystem_ibmcommunity_analysis.ipynb` |
+| `data_science_recommendation_system_project` | Recommender systems (rank-based, collaborative, content-based, SVD) | `recommendationsystem_ibmcommunity_analysis.ipynb` |
 | `crisp_dm_breast_cancer_project` | CRISP-DM classification workflow for breast cancer diagnosis | `crisp_dm_breast_cancer_analysis.ipynb` |
 | `data_science_pipeline_project` | End-to-end ML pipeline for product recommendation prediction | `train.py` |
 | `data_science_dashboard_project` | SQLite + Python package + FastHTML dashboard | `report/dashboard.py` |
@@ -40,7 +40,7 @@ python -m pip install -r requirements.txt
 Notebook projects:
 
 ```bash
-cd recommendationsystem_ibmcommunity_project
+cd data_science_recommendation_system_project
 jupyter notebook recommendationsystem_ibmcommunity_analysis.ipynb
 ```
 
