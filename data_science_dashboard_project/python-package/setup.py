@@ -8,6 +8,6 @@ setup(
     packages=find_packages(),
     python_requires=">=3.8",
     install_requires=[
-        "fasthtml>=0.0.1",
+        "python-fasthtml>=0.14.0",
     ]
 )

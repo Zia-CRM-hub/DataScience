@@ -65,6 +65,16 @@ python -m pip install -r requirements.txt
 python -m pip install -e python-package
 ```
 
+Build distributable package artifact (rubric requirement):
+
+```bash
+cd python-package
+python setup.py sdist
+```
+
+Expected artifact path:
+- python-package/dist/*.tar.gz
+
 3. Initialize database from sample data.
 
 ```bash
@@ -78,6 +88,14 @@ python report/dashboard.py
 ```
 
 Dashboard URL: http://127.0.0.1:8000
+
+Dashboard visuals included:
+- Recruitment risk meter with color scale (green -> yellow -> red)
+- Positive vs negative event balance chart
+
+Dynamic page titles:
+- Employee pages use "Employee Performance"
+- Team pages use "Team Performance"
 
 ## Run Tests
 
@@ -94,3 +112,22 @@ Team-level requirement:
 - Route /team/{team_id} shows aggregate event totals and average recruitment likelihood.
 
 Detailed validation mapping is documented in docs/business_scenario_validation.md.
+
+## Rubric Coverage Checklist
+
+Python Package:
+- Package installation supported via editable install and source distribution build.
+- SQLite connection/query lifecycle handled by SQL decorator/mixin in python-package/employee_events/sql_execution.py.
+- dashboard.py imports Employee and Team from installed employee_events package.
+
+Object Oriented Programming:
+- QueryBase, Employee, Team classes use inheritance in python-package/employee_events/queries.py.
+- SQLMixin is defined and used where needed (QueryBase inheritance tree only).
+
+Dashboard Development:
+- report/dashboard.py serves employee/team data from SQLite.
+- Two visualizations are rendered in employee/team detail views.
+
+GitHub Repository:
+- Root GitHub Action workflow runs dashboard project tests on push and PR.
+- Environment and setup commands are documented in this README.

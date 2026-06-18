@@ -55,6 +55,9 @@ Database seeding logic reads these files in python-package/employee_events/db_se
 1. Install dependencies and package.
 2. Initialize database with create_database().
 3. Run pytest on tests/test_employee_events.py.
-4. Launch dashboard and confirm:
+4. Build package artifact with python setup.py sdist from python-package/.
+5. Launch dashboard and confirm:
 - /employee/{employee_id} shows productivity and recruitment likelihood.
 - /team/{team_id} shows aggregate productivity and average recruitment likelihood.
+- Employee and team pages render both visualizations (risk meter and event balance chart).
+- Page titles show Employee Performance or Team Performance depending on route.

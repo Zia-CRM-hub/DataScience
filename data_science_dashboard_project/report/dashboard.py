@@ -3,11 +3,6 @@ FastHTML Dashboard Application for Employee Events System
 """
 
 from fasthtml.common import *
-from pathlib import Path
-import sys
-
-# Add python-package to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "python-package"))
 
 # Import classes from the employee_events package
 from employee_events import Employee, Team, create_database
@@ -47,6 +42,58 @@ team_queries = Team()
 risk_model = try_load_model()
 
 
+def _risk_color(probability):
+    """Return a color from green->yellow->red based on recruitment risk."""
+    p = max(0.0, min(1.0, float(probability)))
+    red = int(255 * p)
+    green = int(170 * (1.0 - p) + 85)
+    blue = 70
+    return f"rgb({red}, {green}, {blue})"
+
+
+def _render_probability_meter(label, probability):
+    """Visualization 1: horizontal recruitment-risk meter."""
+    pct = max(0.0, min(100.0, float(probability) * 100.0))
+    bar_color = _risk_color(probability)
+    return Div(
+        P(f"{label}: {pct:.1f}%"),
+        Div(
+            Div(
+                style=(
+                    f"width:{pct:.1f}%;"
+                    f"background:{bar_color};"
+                    "height:100%;border-radius:10px;"
+                )
+            ),
+            style="width:100%;height:18px;background:#eceff1;border-radius:10px;overflow:hidden;",
+        ),
+        cls="risk-meter",
+    )
+
+
+def _render_event_balance_chart(positive_events, negative_events):
+    """Visualization 2: stacked positive/negative event bar."""
+    pos = max(0.0, float(positive_events or 0.0))
+    neg = max(0.0, float(negative_events or 0.0))
+    total = pos + neg
+    if total <= 0:
+        pos_pct = 0.0
+        neg_pct = 0.0
+    else:
+        pos_pct = (pos / total) * 100.0
+        neg_pct = (neg / total) * 100.0
+
+    return Div(
+        P(f"Event Balance: +{int(pos)} / -{int(neg)}"),
+        Div(
+            Div(style=f"width:{pos_pct:.1f}%;background:#2e7d32;height:100%;"),
+            Div(style=f"width:{neg_pct:.1f}%;background:#c62828;height:100%;"),
+            style="display:flex;width:100%;height:18px;border-radius:10px;overflow:hidden;background:#eceff1;",
+        ),
+        cls="event-balance",
+    )
+
+
 @rt("/")
 def index():
     """Index route - Main dashboard"""
@@ -82,7 +129,7 @@ def employee():
     
     return Html(
         Head(
-            Title("Employees - Employee Events Dashboard"),
+            Title("Employee Performance - Employee Events Dashboard"),
             Meta(charset="utf-8"),
         ),
         Body(
@@ -126,7 +173,7 @@ def employee_detail(employee_id: int):
     )
     
     return Html(
-        Head(Title(f"{emp[1]} {emp[2]} - Employee Details")),
+        Head(Title(f"Employee Performance - {emp[1]} {emp[2]}")),
         Body(
             base_dashboard.render_header(),
             base_dashboard.render_nav(),
@@ -139,7 +186,8 @@ def employee_detail(employee_id: int):
                         H3("Summary"),
                         P(f"Total Positive Events: {total_positive}"),
                         P(f"Total Negative Events: {total_negative}"),
-                        P(f"Likelihood of Recruitment: {recruitment_likelihood * 100:.1f}%"),
+                        _render_probability_meter("Likelihood of Recruitment", recruitment_likelihood),
+                        _render_event_balance_chart(total_positive, total_negative),
                         cls="summary-section"
                     ),
                     Div(
@@ -163,7 +211,7 @@ def team():
     
     return Html(
         Head(
-            Title("Teams - Employee Events Dashboard"),
+            Title("Team Performance - Employee Events Dashboard"),
             Meta(charset="utf-8"),
         ),
         Body(
@@ -182,7 +230,6 @@ def team():
 def team_detail(team_id: int):
     """Team detail route"""
     team = team_queries.get_team(team_id)
-    employees = team_queries.get_team_size(team_id)
     events = team_queries.get_team_events(team_id)
     summary = team_queries.get_team_summary(team_id)
     
@@ -202,7 +249,7 @@ def team_detail(team_id: int):
     team_recruitment_likelihood = average_team_recruitment_likelihood(events or [], model=risk_model)
     
     return Html(
-        Head(Title(f"{tm[1]} - Team Details")),
+        Head(Title(f"Team Performance - {tm[1]}")),
         Body(
             base_dashboard.render_header(),
             base_dashboard.render_nav(),
@@ -217,7 +264,11 @@ def team_detail(team_id: int):
                         P(f"Employees: {summary_data[2] if summary_data else 0}"),
                         P(f"Total Positive Events: {summary_data[3] if summary_data else 0}"),
                         P(f"Total Negative Events: {summary_data[4] if summary_data else 0}"),
-                        P(f"Average Likelihood of Recruitment: {team_recruitment_likelihood * 100:.1f}%"),
+                        _render_probability_meter("Average Likelihood of Recruitment", team_recruitment_likelihood),
+                        _render_event_balance_chart(
+                            summary_data[3] if summary_data else 0,
+                            summary_data[4] if summary_data else 0,
+                        ),
                         cls="summary-section"
                     ),
                     Div(
