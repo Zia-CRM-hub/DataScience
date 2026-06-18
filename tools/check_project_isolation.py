@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parent.parent
 PROJECTS = [
     "recommendationsystem_ibmcommunity_project",
     "crisp_dm_breast_cancer_project",
-    "fashionforward_stylesense_project",
+    "data_science_pipeline_project",
     "data_science_dashboard_project",
 ]
 

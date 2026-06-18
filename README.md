@@ -10,7 +10,7 @@ This repository contains independent, portfolio-style projects. Each project has
 |---|---|---|
 | `recommendationsystem_ibmcommunity_project` | Recommender systems (rank-based, collaborative, content-based, SVD) | `recommendationsystem_ibmcommunity_analysis.ipynb` |
 | `crisp_dm_breast_cancer_project` | CRISP-DM classification workflow for breast cancer diagnosis | `crisp_dm_breast_cancer_analysis.ipynb` |
-| `fashionforward_stylesense_project` | End-to-end ML pipeline for product recommendation prediction | `train.py` |
+| `data_science_pipeline_project` | End-to-end ML pipeline for product recommendation prediction | `train.py` |
 | `data_science_dashboard_project` | SQLite + Python package + FastHTML dashboard | `report/dashboard.py` |
 
 ## Prerequisites
@@ -52,7 +52,7 @@ jupyter notebook crisp_dm_breast_cancer_analysis.ipynb
 Script-based ML project:
 
 ```bash
-cd fashionforward_stylesense_project
+cd data_science_pipeline_project
 python train.py
 python -m pytest test.py -q
 ```

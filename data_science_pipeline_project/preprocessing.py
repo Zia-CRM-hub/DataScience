@@ -31,7 +31,7 @@ class PreprocessingPipeline:
         # Define feature groups
         numerical_features = ['age', 'rating']
         categorical_features = ['category', 'price_range']
-        text_features = ['review_text']
+        text_feature = 'review_text'
         
         # Numerical preprocessing
         numerical_transformer = Pipeline(steps=[
@@ -53,7 +53,8 @@ class PreprocessingPipeline:
             transformers=[
                 ('num', numerical_transformer, numerical_features),
                 ('cat', categorical_transformer, categorical_features),
-                ('text', text_transformer, text_features)
+                # Pass a single column label so TfidfVectorizer receives a 1D sequence.
+                ('text', text_transformer, text_feature)
             ],
             remainder='drop'
         )

@@ -38,8 +38,8 @@ class TestDataGeneration:
         df = generate_stylesense_dataset(n_samples=50)
         assert pd.api.types.is_numeric_dtype(df['age'])
         assert pd.api.types.is_numeric_dtype(df['rating'])
-        assert pd.api.types.is_object_dtype(df['review_text'])
-        assert pd.api.types.is_object_dtype(df['category'])
+        assert pd.api.types.is_string_dtype(df['review_text'])
+        assert pd.api.types.is_string_dtype(df['category'])
         assert df['recommend'].dtype in [np.int64, np.int32, int]
     
     def test_generated_data_value_ranges(self):
@@ -114,7 +114,10 @@ class TestPreprocessing:
         X_train_2 = pipeline.transform(X_train)
         
         # Should be identical when transforming same data
-        np.testing.assert_array_almost_equal(X_train_1, X_train_2)
+        if hasattr(X_train_1, "toarray") and hasattr(X_train_2, "toarray"):
+            np.testing.assert_allclose(X_train_1.toarray(), X_train_2.toarray(), rtol=1e-6, atol=1e-8)
+        else:
+            np.testing.assert_array_almost_equal(X_train_1, X_train_2)
 
 
 class TestModel:

@@ -100,6 +100,8 @@ def generate_stylesense_dataset(n_samples=1000, random_state=42):
 
 def save_dataset(df, filepath):
     """Save dataset to CSV"""
+    filepath = Path(filepath)
+    filepath.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(filepath, index=False)
     print(f"Dataset saved to {filepath}")
     return filepath
