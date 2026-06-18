@@ -15,16 +15,12 @@ The pipeline handles:
 
 ```
 fashionforward_stylesense_project/
-├── data/                      # Generated dataset storage
 ├── data_generation.py         # Synthetic dataset creation
 ├── preprocessing.py           # Data preprocessing pipeline
 ├── model.py                   # Model training, evaluation, saving, and comparison
 ├── train.py                   # End-to-end training and evaluation script
+├── test.py                    # Pytest test suite
 ├── requirements.txt           # Python dependencies
-├── tests/                     # Pytest test suite
-│   ├── __init__.py
-│   └── test_fashionforward.py
-├── notebooks/                 # Optional notebooks for exploration
 └── README.md                  # Project documentation
 ```
 
@@ -32,7 +28,7 @@ fashionforward_stylesense_project/
 
 ```bash
 cd fashionforward_stylesense_project
-python3 -m pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 ## Usage
@@ -41,18 +37,18 @@ python3 -m pip install -r requirements.txt
 
 ```bash
 cd fashionforward_stylesense_project
-python3 train.py
+python train.py
 ```
 
 ### Run tests
 
 ```bash
 cd fashionforward_stylesense_project
-python3 -m pytest -q
+python -m pytest test.py -q
 ```
 
 ## Notes
 
 - The dataset is synthetic and generated automatically if it does not already exist.
-- Models are saved in the `models/` directory.
+- Models are saved in the `models/` directory when persisted.
 - The project focuses on building a robust pipeline for classification using mixed data types.

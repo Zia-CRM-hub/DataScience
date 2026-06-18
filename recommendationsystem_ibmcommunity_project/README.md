@@ -74,7 +74,7 @@ Complete recommendation engine for IBM Watson Studio articles using multiple app
 
 ### Requirements
 ```bash
-pip install numpy pandas scikit-learn matplotlib seaborn
+python -m pip install -r requirements.txt
 ```
 
 ### Data Files (place in `data/` directory)

@@ -13,6 +13,14 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "python-package"))
 from employee_events import Employee, Team, create_database
 from employee_events.db_setup import get_db_path
 
+# Import utility helpers from report/utils.py
+from utils import (
+    get_model_path,
+    try_load_model,
+    predict_recruitment_likelihood,
+    average_team_recruitment_likelihood,
+)
+
 # Import dashboard components
 from src.dashboard_components import DashboardBase, EmployeeDashboard, TeamDashboard, EventDashboard
 
@@ -36,11 +44,14 @@ event_dashboard = EventDashboard()
 # Instantiate query classes
 employee_queries = Employee()
 team_queries = Team()
+risk_model = try_load_model()
 
 
 @rt("/")
 def index():
     """Index route - Main dashboard"""
+    model_path = get_model_path()
+
     return Html(
         Head(
             Title("Employee Events Dashboard"),
@@ -54,6 +65,7 @@ def index():
                 Div(
                     H2("Welcome to Employee Events Dashboard"),
                     P("Select an option from the navigation menu to get started."),
+                    P(f"Model path: {model_path}"),
                     cls="welcome-section"
                 ),
                 cls="main-content"
@@ -107,6 +119,11 @@ def employee_detail(employee_id: int):
     emp = employee[0]
     total_positive = summary[0][0] if summary and summary[0][0] else 0
     total_negative = summary[0][1] if summary and summary[0][1] else 0
+    recruitment_likelihood = predict_recruitment_likelihood(
+        total_positive,
+        total_negative,
+        model=risk_model,
+    )
     
     return Html(
         Head(Title(f"{emp[1]} {emp[2]} - Employee Details")),
@@ -122,6 +139,7 @@ def employee_detail(employee_id: int):
                         H3("Summary"),
                         P(f"Total Positive Events: {total_positive}"),
                         P(f"Total Negative Events: {total_negative}"),
+                        P(f"Likelihood of Recruitment: {recruitment_likelihood * 100:.1f}%"),
                         cls="summary-section"
                     ),
                     Div(
@@ -181,6 +199,7 @@ def team_detail(team_id: int):
     
     tm = team[0]
     summary_data = summary[0] if summary else None
+    team_recruitment_likelihood = average_team_recruitment_likelihood(events or [], model=risk_model)
     
     return Html(
         Head(Title(f"{tm[1]} - Team Details")),
@@ -198,6 +217,7 @@ def team_detail(team_id: int):
                         P(f"Employees: {summary_data[2] if summary_data else 0}"),
                         P(f"Total Positive Events: {summary_data[3] if summary_data else 0}"),
                         P(f"Total Negative Events: {summary_data[4] if summary_data else 0}"),
+                        P(f"Average Likelihood of Recruitment: {team_recruitment_likelihood * 100:.1f}%"),
                         cls="summary-section"
                     ),
                     Div(
