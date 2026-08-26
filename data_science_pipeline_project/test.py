@@ -16,6 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from data_generation import generate_stylesense_dataset, load_or_create_dataset
 from preprocessing import PreprocessingPipeline, create_train_test_split, preprocess_data
 from model import RecommendationModel, ModelComparison
+from sklearn.pipeline import Pipeline
 
 
 class TestDataGeneration:
@@ -119,6 +120,18 @@ class TestPreprocessing:
         else:
             np.testing.assert_array_almost_equal(X_train_1, X_train_2)
 
+    def test_preprocessing_handles_missing_values(self):
+        """Test that preprocessing imputes missing numeric and text values."""
+        df = generate_stylesense_dataset(n_samples=100).drop('recommend', axis=1)
+        df.loc[0, ['age', 'category', 'review_text']] = np.nan
+
+        pipeline = PreprocessingPipeline()
+        transformed = pipeline.fit_transform(df)
+
+        assert transformed.shape[0] == len(df)
+        dense_transformed = transformed.toarray() if hasattr(transformed, 'toarray') else transformed
+        assert not np.isnan(dense_transformed).any()
+
 
 class TestModel:
     """Tests for model training and evaluation"""
@@ -141,6 +154,17 @@ class TestModel:
         model.train(preprocessed_data['X_train'], preprocessed_data['y_train'])
         # Training should not raise an exception
         assert model.model is not None
+
+    def test_model_is_end_to_end_pipeline(self, preprocessed_data):
+        """Test that the fitted model owns preprocessing and the estimator."""
+        model = RecommendationModel(model_type='random_forest')
+        model.train(preprocessed_data['X_train'], preprocessed_data['y_train'])
+
+        assert isinstance(model.model, Pipeline)
+        assert 'preprocessing' in model.model.named_steps
+        assert 'model' in model.model.named_steps
+        assert model.best_params_
+        assert model.best_cv_score_ >= 0
     
     def test_model_prediction(self, preprocessed_data):
         """Test that trained model can make predictions"""
@@ -150,6 +174,17 @@ class TestModel:
         predictions = model.predict(preprocessed_data['X_test'])
         assert predictions.shape[0] == preprocessed_data['X_test'].shape[0]
         assert all(pred in [0, 1] for pred in predictions)
+
+    def test_model_predicts_raw_records_with_missing_values(self, preprocessed_data):
+        """Test inference directly from raw records, including missing values."""
+        model = RecommendationModel(model_type='random_forest')
+        model.train(preprocessed_data['X_train'], preprocessed_data['y_train'])
+
+        raw_records = preprocessed_data['X_test'].iloc[:2].copy()
+        raw_records.loc[raw_records.index[0], 'rating'] = np.nan
+        predictions = model.predict(raw_records)
+
+        assert predictions.shape == (2,)
     
     def test_model_predict_proba(self, preprocessed_data):
         """Test that model can output prediction probabilities"""

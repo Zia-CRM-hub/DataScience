@@ -44,7 +44,7 @@ def main():
     
     print(f"Training set size: {X_train.shape}")
     print(f"Test set size: {X_test.shape}")
-    print(f"Number of features after preprocessing: {X_train.shape[1]}")
+    print("The fitted model pipeline will preprocess raw records during training and inference.")
     
     # 3. Train and evaluate single model
     print("\n[Step 3] Training Random Forest model...")
@@ -93,10 +93,8 @@ def main():
     ]
     
     sample_df = pd.DataFrame(sample_reviews)
-    sample_processed = preprocessed['pipeline'].transform(sample_df)
-    
-    predictions = best_model.predict(sample_processed)
-    probabilities = best_model.predict_proba(sample_processed)
+    predictions = best_model.predict(sample_df)
+    probabilities = best_model.predict_proba(sample_df)
     
     print("\nSample Predictions:")
     for i, (review, pred, prob) in enumerate(zip(sample_reviews, predictions, probabilities)):

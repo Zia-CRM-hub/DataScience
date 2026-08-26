@@ -7,7 +7,9 @@ This project builds a machine learning pipeline for StyleSense, a fashion e-comm
 The pipeline handles:
 - mixed data types (numerical, categorical, text)
 - data preprocessing with scaling, one-hot encoding, and TF-IDF vectorization
+- missing-value imputation inside the fitted model pipeline
 - model training using Random Forest, Gradient Boosting, and Logistic Regression
+- GridSearchCV parameter tuning with stratified cross-validation
 - evaluation with accuracy, precision, recall, F1, and ROC-AUC
 - sample prediction scenarios
 
@@ -22,6 +24,7 @@ data_science_pipeline_project/
 ├── model.py                   # Model training, evaluation, saving, and comparison
 ├── train.py                   # End-to-end training and evaluation script
 ├── test.py                    # Pytest test suite
+├── stylesense_pipeline_analysis.ipynb  # Reproducible notebook walkthrough
 ├── docs/                      # Validation and data profile docs
 │   ├── business_scenario_validation.md
 │   └── sample_data_profile.md
@@ -77,12 +80,21 @@ cd data_science_pipeline_project
 python train.py
 ```
 
+The saved model is a single scikit-learn pipeline. It accepts raw records with
+`age`, `category`, `price_range`, `rating`, and `review_text`; preprocessing is
+not applied manually before `predict` or `predict_proba`.
+
 ### Run tests
 
 ```bash
 cd data_science_pipeline_project
 python -m pytest test.py -q
 ```
+
+### Run the notebook
+
+Open `stylesense_pipeline_analysis.ipynb` from this directory in Jupyter or VS Code.
+The notebook follows the same raw-record, end-to-end pipeline used by `train.py`.
 
 ## Sample Data (Current Snapshot)
 

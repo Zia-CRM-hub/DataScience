@@ -8,10 +8,13 @@ import pickle
 from pathlib import Path
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score,
     roc_auc_score, confusion_matrix, classification_report, roc_curve
 )
+from preprocessing import create_preprocessing_pipeline
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -31,7 +34,7 @@ class RecommendationModel:
         """
         self.model_type = model_type
         self.random_state = random_state
-        self.model = self._create_model()
+        self.model = self._create_pipeline()
         self.metrics = None
     
     def _create_model(self):
@@ -59,17 +62,53 @@ class RecommendationModel:
             )
         else:
             raise ValueError(f"Unknown model type: {self.model_type}")
+
+    def _create_pipeline(self):
+        """Create one deployable pipeline containing preprocessing and estimator."""
+        return Pipeline(steps=[
+            ('preprocessing', create_preprocessing_pipeline()),
+            ('model', self._create_model())
+        ])
+
+    def _parameter_grid(self):
+        """Return a small, model-specific grid for cross-validated tuning."""
+        if self.model_type == 'random_forest':
+            return {
+                'model__n_estimators': [100, 200],
+                'model__max_depth': [None, 10]
+            }
+        if self.model_type == 'gradient_boosting':
+            return {
+                'model__n_estimators': [100, 150],
+                'model__learning_rate': [0.05, 0.1]
+            }
+        return {
+            'model__C': [0.1, 1.0, 10.0]
+        }
     
     def train(self, X_train, y_train):
         """
         Train the model
         
         Args:
-            X_train: Training features (preprocessed)
+            X_train: Raw training features
             y_train: Training target variable
         """
-        print(f"Training {self.model_type} model...")
-        self.model.fit(X_train, y_train)
+        print(f"Training and tuning {self.model_type} model with cross-validation...")
+        cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=self.random_state)
+        search = GridSearchCV(
+            estimator=self.model,
+            param_grid=self._parameter_grid(),
+            scoring='f1',
+            cv=cv,
+            n_jobs=-1,
+            refit=True
+        )
+        search.fit(X_train, y_train)
+        self.model = search.best_estimator_
+        self.best_params_ = search.best_params_
+        self.best_cv_score_ = search.best_score_
+        print(f"Best CV F1: {search.best_score_:.4f}")
         print("Model training completed!")
     
     def predict(self, X):
@@ -77,7 +116,7 @@ class RecommendationModel:
         Make predictions
         
         Args:
-            X: Features to predict on
+            X: Raw records to predict on
             
         Returns:
             np.array: Predictions (0 or 1)

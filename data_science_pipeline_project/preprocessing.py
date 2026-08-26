@@ -5,10 +5,43 @@ Handles numerical, categorical, and text features
 
 import numpy as np
 import pandas as pd
-from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import FunctionTransformer
+
+
+def create_preprocessing_pipeline():
+    """Create preprocessing for numeric, categorical, and review-text columns."""
+    numerical_features = ['age', 'rating']
+    categorical_features = ['category', 'price_range']
+
+    numerical_transformer = Pipeline(steps=[
+        ('imputer', SimpleImputer(strategy='median')),
+        ('scaler', StandardScaler())
+    ])
+
+    categorical_transformer = Pipeline(steps=[
+        ('imputer', SimpleImputer(strategy='most_frequent')),
+        ('onehot', OneHotEncoder(drop='first', sparse_output=False, handle_unknown='ignore'))
+    ])
+
+    text_transformer = Pipeline(steps=[
+        ('imputer', SimpleImputer(strategy='constant', fill_value='')),
+        ('flatten', FunctionTransformer(np.ravel, validate=False)),
+        ('tfidf', TfidfVectorizer(max_features=100, stop_words='english', ngram_range=(1, 2)))
+    ])
+
+    return ColumnTransformer(
+        transformers=[
+            ('num', numerical_transformer, numerical_features),
+            ('cat', categorical_transformer, categorical_features),
+            ('text', text_transformer, ['review_text'])
+        ],
+        remainder='drop'
+    )
 
 class PreprocessingPipeline:
     """
@@ -28,36 +61,7 @@ class PreprocessingPipeline:
         - Text features: review_text
         """
         
-        # Define feature groups
-        numerical_features = ['age', 'rating']
-        categorical_features = ['category', 'price_range']
-        text_feature = 'review_text'
-        
-        # Numerical preprocessing
-        numerical_transformer = Pipeline(steps=[
-            ('scaler', StandardScaler())
-        ])
-        
-        # Categorical preprocessing
-        categorical_transformer = Pipeline(steps=[
-            ('onehot', OneHotEncoder(drop='first', sparse_output=False, handle_unknown='ignore'))
-        ])
-        
-        # Text preprocessing using TF-IDF
-        text_transformer = Pipeline(steps=[
-            ('tfidf', TfidfVectorizer(max_features=100, stop_words='english', ngram_range=(1, 2)))
-        ])
-        
-        # Combine all transformers
-        self.pipeline = ColumnTransformer(
-            transformers=[
-                ('num', numerical_transformer, numerical_features),
-                ('cat', categorical_transformer, categorical_features),
-                # Pass a single column label so TfidfVectorizer receives a 1D sequence.
-                ('text', text_transformer, text_feature)
-            ],
-            remainder='drop'
-        )
+        self.pipeline = create_preprocessing_pipeline()
         
         return self.pipeline
     
@@ -133,14 +137,12 @@ def preprocess_data(df, test_size=0.2, random_state=42):
         df, test_size=test_size, random_state=random_state
     )
     
-    # Create and fit preprocessing pipeline
+    # Keep the split raw. The model owns and fits preprocessing during training.
     pipeline = PreprocessingPipeline()
-    X_train_processed = pipeline.fit_transform(X_train)
-    X_test_processed = pipeline.transform(X_test)
     
     return {
-        'X_train': X_train_processed,
-        'X_test': X_test_processed,
+        'X_train': X_train,
+        'X_test': X_test,
         'y_train': y_train,
         'y_test': y_test,
         'pipeline': pipeline,
