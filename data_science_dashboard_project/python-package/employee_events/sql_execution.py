@@ -1,8 +1,9 @@
 """
-Decorator for handling SQLite database connections and SQL query execution
+Mixin and decorator for handling SQLite database connections and SQL query execution
 """
 
 import sqlite3
+import pandas as pd
 from pathlib import Path
 from functools import wraps
 
@@ -72,12 +73,13 @@ class SQLMixin:
         """Get the path to the employee_events.db database"""
         return get_db_path()
     
-    def execute_query(self, query):
+    def execute_query(self, query, params=()):
         """
         Execute a SQL query with automatic connection handling.
         
         Args:
             query (str): SQL query string
+            params (tuple): Query parameters for parameterized queries
             
         Returns:
             list: List of tuples containing query results
@@ -89,8 +91,11 @@ class SQLMixin:
             conn = sqlite3.connect(db_path)
             cursor = conn.cursor()
             
-            # Step 2: Execute query
-            cursor.execute(query)
+            # Step 2: Execute query with parameters
+            if params:
+                cursor.execute(query, params)
+            else:
+                cursor.execute(query)
             
             # Step 3: Fetch results
             results = cursor.fetchall()
@@ -105,3 +110,28 @@ class SQLMixin:
         except Exception as e:
             print(f"Error: {e}")
             return None
+    
+    def read_sql(self, query, params=()):
+        """
+        Execute a SQL query and return results as a pandas DataFrame.
+        
+        Args:
+            query (str): SQL query string
+            params (tuple): Query parameters for parameterized queries
+            
+        Returns:
+            pd.DataFrame: Query results as a DataFrame
+        """
+        db_path = self._get_db_path()
+        
+        try:
+            conn = sqlite3.connect(db_path)
+            if params:
+                df = pd.read_sql_query(query, conn, params=params)
+            else:
+                df = pd.read_sql_query(query, conn)
+            conn.close()
+            return df
+        except Exception as e:
+            print(f"Error reading SQL: {e}")
+            return pd.DataFrame()
