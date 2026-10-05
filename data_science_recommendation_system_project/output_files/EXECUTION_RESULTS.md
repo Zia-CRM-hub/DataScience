@@ -10,7 +10,7 @@
 
 ## Execution Outcome
 
-The current notebook summary shows every code cell executed successfully. Both the K-Means inertia plot and SVD RMSE/variance plot rendered. The final export cell reruns the local tests before writing result files.
+The current notebook summary shows every code cell executed successfully. Both the K-Means inertia plot and SVD RMSE/variance plot rendered. The final export cell reruns the local tests before writing result files. **All 3 of 3 notebook-defined validation suites pass** against the included sample data.
 
 | Check | Outcome | Detail |
 | --- | --- | --- |

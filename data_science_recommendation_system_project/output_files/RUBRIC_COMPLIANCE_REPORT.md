@@ -3,7 +3,7 @@
 **Assessment date:** 2026-10-05
 
 **Assessment data:** Bundled 172-interaction sample
-**Overall:** PASS for notebook execution and sample-data criteria; canonical full-corpus criteria remain NOT VERIFIED.
+**Overall:** 3/3 notebook validation suites PASS for execution and sample-data criteria; canonical full-corpus criteria remain NOT VERIFIED.
 
 ## Code Functionality and Readability
 

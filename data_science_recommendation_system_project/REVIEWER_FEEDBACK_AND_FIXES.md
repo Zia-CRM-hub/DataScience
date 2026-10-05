@@ -5,7 +5,7 @@
 
 | Rubric Section | Criterion | Original Reviewer Status | Fix Applied | After-Fix Status |
 | --- | --- | --- | --- | --- |
-| Code Functionality & Readability | Code is functional and passes all tests | ❌ Does Not Pass | Made file discovery independent of kernel working directory; added optional/stale metadata handling; fixed the `max_components` API; ran the notebook and local validation cells. | ✅ PASS on bundled sample. No `project_tests.py` was present; external test suite not verified. |
+| Code Functionality & Readability | Code is functional and passes all tests | ❌ Does Not Pass | Made file discovery independent of kernel working directory; added optional/stale metadata handling; fixed the `max_components` API; ran the notebook and local validation cells. | ✅ 3/3 notebook validation suites PASS on bundled sample; all 3 bundled CSVs load and validate. External `project_tests.py` was not present, so that separate suite is unavailable. |
 | Part I & II: Data Exploration & Rank-Based | Explore the data to understand interactions | ❌ Does Not Pass | Calculate and assert all eight required statistics against the bundled-sample or recognized canonical profile. | ✅ PASS for sample: 172 interactions, 30 users, 20 interacted articles. Canonical full-data values not verified without canonical CSVs. |
 | Part III: Collaborative Filtering | Find similar users needed for user-user CF | ❌ Does Not Pass | Return a Python list of all similar IDs ordered by shared-interaction dot product, excluding the query user; support `user_item=` and optional truncation. | ✅ PASS for sample and email-key fixture. Exact numeric benchmark lists not verified because their IDs are absent from the sample. |
 | Part IV: Content-Based Recommendations | Select optimal cluster size from article texts | ❌ Does Not Pass | Apply TF-IDF, LSA/TruncatedSVD, K-Means, and inertia-elbow selection over feasible cluster counts. | ✅ PASS for sample: selected `k=12` from `2–19`. Full-data `k≈50` selection not verified. |
@@ -13,7 +13,7 @@
 | Part V: Matrix Factorization | Explain decision on latent feature number selection | ❌ Does Not Pass | Evaluate deterministic holdout RMSE and explained variance; plot both and document the selection rule. | ✅ PASS for sample: 5 features, RMSE `0.3924`, explained variance `81.43%`. Full-data 200-feature performance not verified. |
 | Part V: Matrix Factorization | Find article-article recommendations from SVD | ❌ Does Not Pass | Compute cosine similarity on reduced `Vᵀ` item vectors and map results through `user_item_matrix.columns`. | ✅ PASS on sample; article-ID alignment and recommendation assertions pass. |
 
-The initial FAIL labels above are transcribed from the reviewer feedback. Current outcomes are separated by data profile: local sample checks passed; full-dataset-only figures and benchmarks are not claimed as tested.
+The initial FAIL labels above are transcribed from the reviewer feedback. Current outcomes are separated by data profile: all 3 notebook validation suites pass on the bundled sample; full-dataset-only figures and benchmarks are not claimed as tested. The complete file-by-file evidence index is [here](output_files/VERIFIED_EVIDENCE_INDEX.md).
 
 ## Code Functionality and Readability
 
@@ -23,7 +23,7 @@ The initial FAIL labels above are transcribed from the reviewer feedback. Curren
 
 **Fix:** The loader searches the project root and `data/` folder. Interactions and community content are required; `articles.csv` is optional. When both article tables exist, the loader chooses the one with more unique article IDs, avoiding stale sample metadata. User keys may be `email` or `user_id`. The analysis and SVD functions accept `max_components`; `find_similar_users` accepts both `user_item=` and `user_item_matrix=`.
 
-**Data and outcome:** The bundled tables load as 172 interactions, 20 community articles, and 20 metadata articles. The optional/stale metadata fallback, exact `analyze_latent_features(user_item_matrix, max_components=10)` call, and reviewer keyword form are covered by passing notebook assertions. All notebook code cells have successful execution records; notebook diagnostics report no errors.
+**Data and outcome:** All three bundled CSV files load and validate as 172 interactions, 20 community articles, and 20 metadata articles. The optional/stale metadata fallback, exact `analyze_latent_features(user_item_matrix, max_components=10)` call, and reviewer keyword form are covered by passing notebook assertions. All notebook code cells have successful execution records; notebook diagnostics report no errors.
 
 ## Part I & II: Data Exploration & Create Rank Based Recommendations
 

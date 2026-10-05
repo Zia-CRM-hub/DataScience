@@ -35,6 +35,8 @@ The exploration dictionary values are also recorded in `REVIEWER_FEEDBACK_AND_FI
 
 ## Local Validation Evidence
 
+**Verified test-suite result: 3 of 3 notebook-defined validation suites passed (100% of the local suites executed).** This percentage is a test-suite pass rate only. It is not a claim of 100% recommendation accuracy, and it does not include the unavailable external `project_tests.py` or the canonical full-data benchmark cases.
+
 | Check | Result | What it covers |
 | --- | --- | --- |
 | `sol_1_test(sol_1_dict)` | PASS | Exact 8-value bundled-sample exploration dictionary. |
@@ -67,35 +69,45 @@ The reviewer provided these canonical IBM targets. They are recorded as referenc
 
 ## Supporting Files
 
-### Input Data
+This manifest lists the relevant checked-in project files and identifies which are authoritative evidence for the latest run.
 
-- [User-item interactions](../data/user_item_interactions.csv)
-- [Article metadata](../data/articles.csv)
-- [Article community text](../data/articles_community.csv)
+### Primary Inputs and Criteria
 
-### Implementation and Criteria
+- [User-item interactions](../data/user_item_interactions.csv) - authoritative input; 172 rows, 30 unique users, 20 interacted articles.
+- [Article metadata](../data/articles.csv) - authoritative sample metadata; 20 unique article IDs.
+- [Article community text](../data/articles_community.csv) - authoritative sample content; 20 unique article IDs.
+- [Project rubric](../PROJECT_RUBRIC.md) - criteria used for the notebook assessment.
+- [Requirements](../requirements.txt) - declared Python dependencies.
+- [README](../README.md) - project setup, implementation notes, and report links.
+
+### Implementation and Reviewer Record
 
 - [Recommendation notebook](../recommendationsystem_ibmcommunity_analysis.ipynb)
-- [Project rubric](../PROJECT_RUBRIC.md)
-- [Requirements](../requirements.txt)
 - [Reviewer findings, fixes, and statuses](../REVIEWER_FEEDBACK_AND_FIXES.md)
 
-### Current Result Artifacts
+### Current Result Artifacts (Latest Notebook Export)
 
-- [Machine-readable metrics](../results/review_metrics.json)
-- [Exploration statistics](../results/exploration_statistics.csv)
-- [Top articles](../results/top_articles.csv)
-- [Article cluster assignments](../results/article_cluster_assignments.csv)
-- [K-Means inertia datapoints](../results/kmeans_inertia_points.csv)
-- [SVD feature datapoints](../results/svd_feature_metrics.csv)
-- [K-Means inertia chart](../results/charts/kmeans_inertia_elbow.png)
-- [SVD RMSE/variance chart](../results/charts/svd_feature_selection.png)
-- [Example user collaborative recommendations](../results/recommendations_example_user_collaborative.csv)
-- [Example user content recommendations](../results/recommendations_example_user_content.csv)
-- [Example article content recommendations](../results/recommendations_example_article_content.csv)
-- [Example article SVD recommendations](../results/recommendations_example_article_svd.csv)
+- [Machine-readable metrics](../results/review_metrics.json) - canonical summary for the latest export; includes `dataset_profile` and benchmark-verification status.
+- [Exploration statistics](../results/exploration_statistics.csv) - all eight measured rubric values.
+- [Top articles](../results/top_articles.csv) - ordered article IDs, titles, and counts.
+- [Article cluster assignments](../results/article_cluster_assignments.csv) - cluster and popularity per article.
+- [K-Means inertia datapoints](../results/kmeans_inertia_points.csv) - exact plotted inertia values and selected `k` flag.
+- [SVD feature datapoints](../results/svd_feature_metrics.csv) - RMSE, variance, and selected-dimension flag for each tested count.
+- [K-Means inertia chart](../results/charts/kmeans_inertia_elbow.png).
+- [SVD RMSE/variance chart](../results/charts/svd_feature_selection.png).
+- [Example user collaborative recommendations](../results/recommendations_example_user_collaborative.csv).
+- [Example user content recommendations](../results/recommendations_example_user_content.csv).
+- [Example article content recommendations](../results/recommendations_example_article_content.csv).
+- [Example article SVD recommendations](../results/recommendations_example_article_svd.csv).
 
-Additional `recommendations_user_1_*.csv` and non-example `recommendations_article_*.csv` compatibility exports are retained in `results/`; use the `recommendations_example_*.csv` files above as the current named review exports.
+Compatibility exports also tracked in `results/` are `recommendations_user_1_collaborative.csv`, `recommendations_user_1_content.csv`, `recommendations_article_content.csv`, and `recommendations_article_svd.csv`. They are retained for compatibility; use the `recommendations_example_*.csv` files above as the primary named review outputs.
+
+### Execution and Historical Reference Files
+
+- [Notebook runner](../run_notebook.py) and [shell entry point](../execute.sh) are legacy automation helpers, not the source of the verified metrics in this index.
+- [Synthetic data generator](../generate_synthetic_data.py) and [synthetic execution script](../EXECUTION_OUTPUT.py) generate an alternate synthetic dataset. `execute.sh` invokes the generator before running, which overwrites `data/*.csv`; do not use it when reproducing the committed 172-row sample or a supplied canonical IBM dataset.
+- [Historical text execution output](../EXECUTION_RESULTS.txt) is from an older synthetic-data run and is not current sample evidence.
+- The `output_files/` folder contains [current execution details](EXECUTION_RESULTS.md), [rubric status](RUBRIC_COMPLIANCE_REPORT.md), [the complete execution report](COMPLETE_EXECUTION_REPORT.md), and this index.
 
 ### Reports
 

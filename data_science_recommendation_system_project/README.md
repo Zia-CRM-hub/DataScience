@@ -99,6 +99,8 @@ Running the notebook exports reproducible review artifacts to `results/`:
 - `recommendations_*.csv` - example collaborative, content-based, and SVD outputs
 - `charts/kmeans_inertia_elbow.png` and `charts/svd_feature_selection.png` - plots
 
+The evidence index distinguishes the passing bundled-sample checks from canonical full-IBM benchmarks that require the full dataset. The legacy `execute.sh` invokes a synthetic-data generator that overwrites `data/*.csv`; do not run it when preserving the committed sample or testing canonical inputs.
+
 ### Run Analysis
 ```bash
 # Jupyter Notebook

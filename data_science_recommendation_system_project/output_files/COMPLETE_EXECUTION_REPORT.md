@@ -11,7 +11,7 @@
 
 ## Executive Summary
 
-The latest notebook execution completes successfully on the bundled sample. All code cells have successful execution records. Exploration, ranking, collaborative filtering, content recommendations, SVD, edge-case validation, data validation, and result export checks pass. Both requested charts render and are saved under `results/charts/`.
+The latest notebook execution completes successfully on the bundled sample. All code cells have successful execution records. All 3 of 3 notebook-defined validation suites pass; exploration, ranking, collaborative filtering, content recommendations, SVD, edge-case validation, data validation, and result export checks pass. Both requested charts render and are saved under `results/charts/`. The [verified evidence index](VERIFIED_EVIDENCE_INDEX.md) maps each claim to its supporting file.
 
 This run uses a small sample, not the full IBM dataset named in reviewer expectations. Accordingly, the report separates sample PASS results from canonical full-data checks that could not be reproduced locally. Historical September 3 figures in prior reports have been replaced with current sample measurements.
 
