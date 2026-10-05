@@ -3,13 +3,15 @@
 **Review date:** 2026-10-05
 **Project:** IBM Community Article Recommendation System
 
-| Rubric section | Criterion | Reviewer status received | Current outcome |
-| --- | --- | --- | --- |
-| Code Functionality and Readability | Notebook executes; function signatures match tests | FAIL | PASS on bundled sample. All code cells have successful executions; the `max_components` API calls pass. Separate `project_tests.py` was not included. |
-| Part I & II: Data Exploration & Create Rank Based Recommendations | Correct dataset statistics and ranked article functions | FAIL | PASS for the included 172-row sample. Canonical full IBM totals are supported but NOT VERIFIED because those CSVs are unavailable. |
-| Part III: Collaborative Filtering | Ordered similar-user IDs and recommendations | FAIL | PASS for sample and email-schema fixture. Reviewer numeric benchmark IDs are NOT VERIFIED because they are not in the sample. |
-| Part IV: Create Rank Based Recommendations (also labeled Part IV: Content-Based Recommendations) | K-Means content clusters and popularity-ranked recommendations | FAIL | PASS on sample with `k=12`; canonical `k≈50` is dimensionally feasible on the full 1,051-article corpus but NOT VERIFIED locally. |
-| Part V: Matrix Factorization | Performance-based feature selection and SVD article neighbors | FAIL | PASS on sample with 5 features and aligned item IDs. Canonical 200-feature performance is NOT VERIFIED locally. |
+| Rubric Section | Criterion | Original Reviewer Status | Fix Applied | After-Fix Status |
+| --- | --- | --- | --- | --- |
+| Code Functionality & Readability | Code is functional and passes all tests | ❌ Does Not Pass | Made file discovery independent of kernel working directory; added optional/stale metadata handling; fixed the `max_components` API; ran the notebook and local validation cells. | ✅ PASS on bundled sample. No `project_tests.py` was present; external test suite not verified. |
+| Part I & II: Data Exploration & Rank-Based | Explore the data to understand interactions | ❌ Does Not Pass | Calculate and assert all eight required statistics against the bundled-sample or recognized canonical profile. | ✅ PASS for sample: 172 interactions, 30 users, 20 interacted articles. Canonical full-data values not verified without canonical CSVs. |
+| Part III: Collaborative Filtering | Find similar users needed for user-user CF | ❌ Does Not Pass | Return a Python list of all similar IDs ordered by shared-interaction dot product, excluding the query user; support `user_item=` and optional truncation. | ✅ PASS for sample and email-key fixture. Exact numeric benchmark lists not verified because their IDs are absent from the sample. |
+| Part IV: Content-Based Recommendations | Select optimal cluster size from article texts | ❌ Does Not Pass | Apply TF-IDF, LSA/TruncatedSVD, K-Means, and inertia-elbow selection over feasible cluster counts. | ✅ PASS for sample: selected `k=12` from `2–19`. Full-data `k≈50` selection not verified. |
+| Part IV: Content-Based Recommendations | Recommend articles based on content similarity | ❌ Does Not Pass | Restrict recommendations to the seed/user-history cluster, exclude already-read items where applicable, and rank by overall interaction popularity. | ✅ PASS on sample; cluster membership and popularity ordering assertions pass. |
+| Part V: Matrix Factorization | Explain decision on latent feature number selection | ❌ Does Not Pass | Evaluate deterministic holdout RMSE and explained variance; plot both and document the selection rule. | ✅ PASS for sample: 5 features, RMSE `0.3924`, explained variance `81.43%`. Full-data 200-feature performance not verified. |
+| Part V: Matrix Factorization | Find article-article recommendations from SVD | ❌ Does Not Pass | Compute cosine similarity on reduced `Vᵀ` item vectors and map results through `user_item_matrix.columns`. | ✅ PASS on sample; article-ID alignment and recommendation assertions pass. |
 
 The initial FAIL labels above are transcribed from the reviewer feedback. Current outcomes are separated by data profile: local sample checks passed; full-dataset-only figures and benchmarks are not claimed as tested.
 
