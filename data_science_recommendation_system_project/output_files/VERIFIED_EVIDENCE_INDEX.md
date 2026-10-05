@@ -1,7 +1,8 @@
 # Verified Evidence Index
 
-**Evidence snapshot:** 2026-10-05  
-**Dataset profile:** Bundled sample (`user_id` schema)  
+**Evidence snapshot:** 2026-10-05
+
+**Dataset profile:** Bundled sample (`user_id` schema)
 **Notebook:** `recommendationsystem_ibmcommunity_analysis.ipynb`
 
 This index maps each locally verified claim to its data point and supporting artifact. It distinguishes checks run on the committed sample from reviewer expectations that require the full IBM dataset.
