@@ -1,4 +1,6 @@
 {
+  "dataset_profile":"bundled_sample",
+  "user_identifier_column":"user_id",
   "interactions":172,
   "users":30,
   "unique_articles_in_interactions":20,
@@ -13,6 +15,7 @@
   "selected_svd_holdout_rmse":0.3924446284,
   "selected_svd_explained_variance":0.814264699,
   "svd_neighbor_source_features":5,
+  "canonical_similarity_benchmark_status":"not_verified_full_numeric_id_dataset_unavailable",
   "rubric_validation":"passed",
   "edge_case_validation":"passed",
   "data_validation":"passed"

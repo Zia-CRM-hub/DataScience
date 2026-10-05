@@ -81,7 +81,9 @@ python -m pip install -r requirements.txt
 
 ### Data Files
 - Sample data is included in `data/` and works out-of-the-box for notebook execution.
-- You can replace these files with full project datasets if desired.
+- The notebook accepts either `user_id` or `email` as the interaction user key.
+- `articles.csv` is optional when `articles_community.csv` contains article IDs. The loader uses whichever file covers more unique articles, so a stale sample metadata file cannot hide a larger community dataset.
+- You can replace the sample with the full IBM project datasets. The notebook uses dimensions from the loaded data rather than assuming sample sizes.
 
 Included files:
 - `user_item_interactions.csv` - User interactions with articles
@@ -154,19 +156,26 @@ The included sample contains 20 articles, so cluster counts are bounded by the
 available article count. The inertia elbow selects the cluster count from the
 observed curve; it does not assume a fixed target such as 50 clusters.
 
+With the canonical IBM data cited in the reviewer note, 1,051 content articles
+allow evaluating up to 50 clusters, while the 714 interaction-matrix item
+columns allow evaluating up to 200 SVD components. Those larger targets are
+only evaluated when the corresponding full datasets are loaded.
+
 ### SVD Feature Selection
 Candidate component counts are evaluated with a deterministic holdout RMSE and
 cumulative explained variance. The notebook chooses the smallest count within
-0.01 RMSE of the best observed score. With 20 item columns, at most 19
-components are evaluated; larger targets such as 200 cannot be fit to this data.
+0.01 RMSE of the best observed score. With the 20-item bundled sample, at most
+19 components are evaluated; the full IBM matrix can evaluate up to 200.
 
 ### Cosine Similarity
 Used for:
-- Finding similar users
-- Article similarity (TF-IDF vectors)
+- Weighting user-user collaborative recommendations
 - SVD-based article relationships
 
-**Why:** Angle-based, magnitude-invariant, computationally efficient
+Similar users are ordered by shared-interaction dot product to match the project
+benchmark ordering. Cosine weighting is used when scoring collaborative items
+and comparing reduced SVD article vectors. Cosine is angle-based and
+magnitude-invariant; the binary dot product directly counts shared articles.
 
 ### SVD Benefits
 - Discovers hidden patterns
