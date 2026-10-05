@@ -1,0 +1,19 @@
+{
+  "interactions":172,
+  "users":30,
+  "unique_articles_in_interactions":20,
+  "articles_in_metadata":20,
+  "median_interactions_per_user":6.0,
+  "max_interactions_by_user":6,
+  "max_views_for_article":9,
+  "most_viewed_article_id":4,
+  "user_item_matrix_sparsity":0.7133333333,
+  "selected_content_clusters":12,
+  "selected_svd_features":5,
+  "selected_svd_holdout_rmse":0.3924446284,
+  "selected_svd_explained_variance":0.814264699,
+  "svd_neighbor_source_features":5,
+  "rubric_validation":"passed",
+  "edge_case_validation":"passed",
+  "data_validation":"passed"
+}

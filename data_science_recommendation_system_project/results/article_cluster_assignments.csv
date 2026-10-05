@@ -1,0 +1,21 @@
+article_id,content_cluster,title,interaction_count
+1,0,IBM Data Science Article 1,9
+2,0,IBM Data Science Article 2,9
+3,0,IBM Data Science Article 3,8
+4,0,IBM Data Science Article 4,9
+5,0,IBM Data Science Article 5,9
+6,0,IBM Data Science Article 6,8
+7,0,IBM Data Science Article 7,8
+8,0,IBM Data Science Article 8,9
+9,0,IBM Data Science Article 9,9
+10,2,IBM Data Science Article 10,8
+11,3,IBM Data Science Article 11,9
+12,9,IBM Data Science Article 12,9
+13,6,IBM Data Science Article 13,8
+14,4,IBM Data Science Article 14,8
+15,5,IBM Data Science Article 15,9
+16,1,IBM Data Science Article 16,9
+17,10,IBM Data Science Article 17,8
+18,8,IBM Data Science Article 18,9
+19,11,IBM Data Science Article 19,9
+20,7,IBM Data Science Article 20,8

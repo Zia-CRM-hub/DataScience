@@ -45,16 +45,16 @@ Complete recommendation engine for IBM Watson Studio articles using multiple app
 ### ✅ Part IV: Content-Based Recommendations
 **Features:**
 - TF-IDF vectorization of article text
-- Cosine similarity computation
-- **KMeans clustering with silhouette score analysis**
+- TruncatedSVD (LSA) reduction of TF-IDF article vectors
+- **KMeans clustering with an inertia elbow curve**
 - Optimal cluster selection visualization
-- Content-based recommendations using article similarity
+- Content-based recommendations from the same cluster, ranked by interaction popularity
 - Explicit article-to-article recommendations from existing article IDs
 
 **Functions:**
 - `prepare_article_content(articles_df, articles_community_df)`
 - `create_tfidf_similarity_matrix(article_df)`
-- `find_optimal_clusters(tfidf_matrix, max_clusters)`
+- `find_optimal_clusters(lsa_matrix, min_k, max_k)`
 - `recommend_content_based(user_id, ...)`
 - `recommend_similar_articles_by_content(article_id, ...)`
 
@@ -87,6 +87,14 @@ Included files:
 - `user_item_interactions.csv` - User interactions with articles
 - `articles.csv` - Article metadata (id, title, etc.)
 - `articles_community.csv` - Article content/text
+
+### Review Outputs
+Running the notebook exports reproducible review artifacts to `results/`:
+- `review_metrics.json` and `exploration_statistics.csv` - measured dataset and model metrics
+- `kmeans_inertia_points.csv` and `svd_feature_metrics.csv` - plotted data points
+- `article_cluster_assignments.csv` and `top_articles.csv` - article-level results
+- `recommendations_*.csv` - example collaborative, content-based, and SVD outputs
+- `charts/kmeans_inertia_elbow.png` and `charts/svd_feature_selection.png` - plots
 
 ### Run Analysis
 ```bash
@@ -137,10 +145,20 @@ code recommendationsystem_ibmcommunity_analysis.ipynb
 TfidfVectorizer(
     stop_words='english',
     max_df=0.8,        # Ignore terms in 80%+ documents
-    min_df=2,          # Ignore terms in <2 documents  
+    min_df=1,          # Keep terms appearing in at least one document
     max_features=1000  # Top 1000 features
 )
 ```
+
+The included sample contains 20 articles, so cluster counts are bounded by the
+available article count. The inertia elbow selects the cluster count from the
+observed curve; it does not assume a fixed target such as 50 clusters.
+
+### SVD Feature Selection
+Candidate component counts are evaluated with a deterministic holdout RMSE and
+cumulative explained variance. The notebook chooses the smallest count within
+0.01 RMSE of the best observed score. With 20 item columns, at most 19
+components are evaluated; larger targets such as 200 cannot be fit to this data.
 
 ### Cosine Similarity
 Used for:
