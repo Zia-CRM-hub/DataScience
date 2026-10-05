@@ -1,6 +1,7 @@
 # Reviewer Feedback and Fixes
 
-**Review date:** 2026-10-05  
+**Review date:** 2026-10-05
+
 **Project:** IBM Community Article Recommendation System
 
 This note maps the reported rubric failures to the corresponding fixes and the results produced from the CSV files included with this project.
