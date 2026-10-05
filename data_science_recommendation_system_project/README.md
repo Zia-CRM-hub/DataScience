@@ -92,6 +92,7 @@ Included files:
 
 ### Review Outputs
 Running the notebook exports reproducible review artifacts to `results/`:
+- `output_files/VERIFIED_EVIDENCE_INDEX.md` - verified datapoints, validation evidence, and links to all supporting files
 - `review_metrics.json` and `exploration_statistics.csv` - measured dataset and model metrics
 - `kmeans_inertia_points.csv` and `svd_feature_metrics.csv` - plotted data points
 - `article_cluster_assignments.csv` and `top_articles.csv` - article-level results

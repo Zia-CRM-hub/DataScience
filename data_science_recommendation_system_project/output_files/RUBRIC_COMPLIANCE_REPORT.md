@@ -77,6 +77,7 @@ These are the reviewer-provided targets for the full IBM data. They are referenc
 ## Validation Artifacts
 
 - [Latest execution results](EXECUTION_RESULTS.md)
+- [Verified evidence index and supporting files](VERIFIED_EVIDENCE_INDEX.md)
 - [Reviewer findings, fixes, and PASS/FAIL comments](../REVIEWER_FEEDBACK_AND_FIXES.md)
 - [Machine-readable metrics](../results/review_metrics.json)
 - [Notebook](../recommendationsystem_ibmcommunity_analysis.ipynb)

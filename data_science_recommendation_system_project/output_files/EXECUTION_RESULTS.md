@@ -73,3 +73,5 @@ See the [SVD feature chart](../results/charts/svd_feature_selection.png) and [sv
 The reviewer’s canonical corpus is expected to contain 45,993 interactions, 5,148 users, 714 interacted article IDs, and 1,051 metadata articles. Its expected statistics include median 3.0, max 364 interactions per user, max 937 views per article, and most-viewed ID `1429.0`. Those files were not available for this run.
 
 That full profile makes 50 text clusters and 200 SVD components dimensionally feasible. The notebook supports those candidate ranges when the full inputs are supplied, but their measured selection and the reviewer’s numeric similar-user lists remain NOT VERIFIED.
+
+For the complete mapping from each verified value to its supporting input, output, plot, notebook, and validation cell, see the [verified evidence index](VERIFIED_EVIDENCE_INDEX.md).

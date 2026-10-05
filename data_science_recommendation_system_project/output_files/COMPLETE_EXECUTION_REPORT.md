@@ -93,6 +93,7 @@ With those full dimensions, 50 K-Means clusters and 200 SVD components are feasi
 
 - [Execution data and outputs](EXECUTION_RESULTS.md)
 - [Rubric status and evidence](RUBRIC_COMPLIANCE_REPORT.md)
+- [Verified evidence index and supporting files](VERIFIED_EVIDENCE_INDEX.md)
 - [Reviewer findings, fixes, and PASS/FAIL comments](../REVIEWER_FEEDBACK_AND_FIXES.md)
 - [Machine-readable run metrics](../results/review_metrics.json)
 - [Exploration statistics](../results/exploration_statistics.csv)
