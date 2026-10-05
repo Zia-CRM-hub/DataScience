@@ -1,57 +1,75 @@
-# Latest Notebook Execution Results
+# Execution Results
 
-**Run date:** 2026-10-05
+**Execution date:** 2026-10-05
 
-**Dataset profile:** Bundled project sample
 **Notebook:** `recommendationsystem_ibmcommunity_analysis.ipynb`
 
-## Run Status
+**Dataset profile:** Bundled sample (`user_id` schema)
 
-All notebook code cells have successful execution records. The following notebook validations passed on the bundled sample:
+**Notebook kernel:** Python 3.14.4
 
-- `test_all_functions()` - exploration, ranking, collaborative filtering, content recommendations, SVD, alternate `email` schema, optional article metadata, and reviewer API signatures.
-- `test_edge_cases()` - cold-start, sparse user, oversized request, and missing-user cases.
-- `test_data_validation()` - columns, IDs, duplicates, and article references.
-- Notebook diagnostics - no errors reported.
+## Execution Outcome
 
-The numeric similar-user benchmark IDs from the reviewer were skipped because they are not present in the bundled sample. The separate `project_tests.py` file was not present in this checkout.
+The current notebook summary shows every code cell executed successfully. Both the K-Means inertia plot and SVD RMSE/variance plot rendered. The final export cell reruns the local tests before writing result files.
 
-## Dataset Statistics
+| Check | Outcome | Detail |
+| --- | --- | --- |
+| `sol_1_test(sol_1_dict)` | PASS | All eight sample statistics equal their expected values. |
+| `test_all_functions()` | PASS | Rank-based, collaborative, content, SVD, API compatibility, email-key fixture, and metadata-selection checks. |
+| `test_edge_cases()` | PASS | Missing users, sparse users, oversized requests, and recommendation fallbacks. |
+| `test_data_validation()` | PASS | Required fields, valid IDs, duplicates, and metadata references. |
+| Notebook diagnostics | PASS | No errors reported. |
+| Canonical reviewer benchmark IDs | NOT VERIFIED | Full IBM dataset is not present; numeric IDs are absent from this 30-user sample. |
+| External `project_tests.py` | NOT RUN | No such file was present in this checkout. |
 
-| Metric | Latest value |
+## Sample Inputs and Exploration
+
+The committed sample contains three CSVs: `data/user_item_interactions.csv`, `data/articles.csv`, and `data/articles_community.csv`. The loader requires interactions and community content, supports an optional article metadata file, and selects the article table with greater unique-ID coverage.
+
+| Measure | Executed result |
 | --- | ---: |
-| User identifier column | `user_id` |
-| User-article interactions | 172 |
+| Interaction rows | 172 |
+| User key | `user_id` |
 | Unique users | 30 |
-| Unique articles in interactions | 20 |
-| Articles in metadata | 20 |
+| Unique articles with interactions | 20 |
+| Article metadata count | 20 |
 | Median interactions per user | 6.0 |
-| Maximum interactions by a user | 6 |
-| Maximum views for an article | 9 |
+| Maximum interactions by one user | 6 |
+| Maximum views for one article | 9 |
 | Most-viewed article ID | 4 |
-| User-item matrix | 30 × 20 |
+| User-item matrix shape | 30 × 20 |
 | Matrix sparsity | 71.33% |
 
-## Recommendation Results
+The eight values are also available in [exploration_statistics.csv](../results/exploration_statistics.csv) and the full run summary in [review_metrics.json](../results/review_metrics.json).
 
-Top articles are tied at 9 interactions each; deterministic ID ordering resolves ties. The complete ranked output is in [top_articles.csv](../results/top_articles.csv).
+## Executed Recommendation Outputs
 
-For sample user 1, dot-product similarity returns the ordered neighbors `[8, 22, 29, 15, 6]`. The exported collaborative example and user-content example are available at [recommendations_example_user_collaborative.csv](../results/recommendations_example_user_collaborative.csv) and [recommendations_example_user_content.csv](../results/recommendations_example_user_content.csv).
+The ten most popular articles are IDs `4, 5, 11, 12, 18, 19, 1, 2, 8, 9`; each received 9 interactions. See [top_articles.csv](../results/top_articles.csv).
 
-For article 1, cluster-popularity recommendations are article IDs `2, 4, 5, 8, 9, 3, 6, 7`. The reduced 5-feature SVD neighbor IDs are `8, 15, 7, 14, 2`. Full outputs: [article content recommendations](../results/recommendations_example_article_content.csv) and [SVD article recommendations](../results/recommendations_example_article_svd.csv).
+For sample user 1, the ordered dot-product neighbors begin `[8, 22, 29, 15, 6]`. The exported collaborative recommendations are in [recommendations_example_user_collaborative.csv](../results/recommendations_example_user_collaborative.csv). Content recommendations for the same example are in [recommendations_example_user_content.csv](../results/recommendations_example_user_content.csv).
 
-## Content Clustering
+For seed article 1, cluster/popularity recommendations are IDs `2, 4, 5, 8, 9, 3, 6, 7`. Reduced-feature SVD recommendations are IDs `8, 15, 7, 14, 2`. Both result lists are exported: [content-based article recommendations](../results/recommendations_example_article_content.csv) and [SVD article recommendations](../results/recommendations_example_article_svd.csv).
 
-The content workflow transforms TF-IDF features with LSA/TruncatedSVD, fits K-Means over feasible candidate counts, and selects the elbow at `k=12` for this sample. The inertia reaches approximately zero at that point. Review the [elbow chart](../results/charts/kmeans_inertia_elbow.png), [inertia points](../results/kmeans_inertia_points.csv), and [article cluster assignments](../results/article_cluster_assignments.csv).
+## Model Metrics and Charts
 
-The current 20-article sample bounds candidate clusters to `2–19`. The reviewer’s canonical content table contains 1,051 articles, where a 50-cluster candidate is feasible; that full corpus was not available for this run.
+### Content Model
 
-## SVD Feature Evaluation
+Article text produces a TF-IDF matrix of shape `(20, 11)` and an LSA matrix of shape `(20, 10)`. K-Means evaluated `k=2–19`; the inertia elbow selected `k=12`, with inertia effectively zero. The chart, data points, and assignments are available as [kmeans_inertia_elbow.png](../results/charts/kmeans_inertia_elbow.png), [kmeans_inertia_points.csv](../results/kmeans_inertia_points.csv), and [article_cluster_assignments.csv](../results/article_cluster_assignments.csv).
 
-The sample user-item matrix has 20 item columns, so at most 19 components were evaluated. The selected model uses 5 components with holdout RMSE `0.3924` and cumulative explained variance `81.43%`. See the [RMSE/variance chart](../results/charts/svd_feature_selection.png) and [feature datapoints](../results/svd_feature_metrics.csv).
+### SVD Model
 
-The reviewer’s canonical interaction matrix has 714 article columns, making 200 components dimensionally feasible. The notebook evaluates up to 200 when that full matrix is supplied; this run does not claim that 200 is optimal because the canonical data and its holdout results are unavailable.
+The interaction matrix permits at most 19 components. Holdout evaluation selected 5 features:
 
-## Machine-Readable Summary
+| Metric | Result |
+| --- | ---: |
+| Holdout RMSE | 0.3924 |
+| Cumulative explained variance | 81.43% |
+| Selected component count | 5 of 19 feasible |
 
-The authoritative summary for this run is [review_metrics.json](../results/review_metrics.json). It records the dataset profile and marks canonical numeric-ID benchmarks as not verified rather than presenting them as passing.
+See the [SVD feature chart](../results/charts/svd_feature_selection.png) and [svd_feature_metrics.csv](../results/svd_feature_metrics.csv).
+
+## Reviewer Reference Values Not Reproduced Here
+
+The reviewer’s canonical corpus is expected to contain 45,993 interactions, 5,148 users, 714 interacted article IDs, and 1,051 metadata articles. Its expected statistics include median 3.0, max 364 interactions per user, max 937 views per article, and most-viewed ID `1429.0`. Those files were not available for this run.
+
+That full profile makes 50 text clusters and 200 SVD components dimensionally feasible. The notebook supports those candidate ranges when the full inputs are supplied, but their measured selection and the reviewer’s numeric similar-user lists remain NOT VERIFIED.

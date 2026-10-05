@@ -1,33 +1,26 @@
-# Latest Rubric Compliance Report
+# Rubric Compliance Report
 
 **Assessment date:** 2026-10-05
 
-**Project:** IBM Community Article Recommendation System
+**Assessment data:** Bundled 172-interaction sample
+**Overall:** PASS for notebook execution and sample-data criteria; canonical full-corpus criteria remain NOT VERIFIED.
 
-**Assessment basis:** Current notebook run using the bundled sample CSVs
+## Code Functionality and Readability
 
-> This report replaces the historical September 3 report in this folder. Its figures describe the current 172-interaction sample, not the full IBM dataset cited in the reviewer feedback.
+| Criterion | Initial reviewer status | Current status | Evidence and data points |
+| --- | --- | --- | --- |
+| Notebook runs and outputs are visible | FAIL | **PASS - sample** | Notebook summary shows successful execution for every code cell; both required plots render. |
+| Data loading is robust | FAIL | **PASS - sample and fixture** | Finds input files from project root or `data/`; requires interaction/community CSVs; optional/stale metadata handling is tested. |
+| Function signatures match callers | FAIL | **PASS - tested calls** | `analyze_latent_features(..., max_components=10)`, SVD `max_components`, and similar-user `user_item=` forms pass. |
+| Project tests | FAIL | **PASS locally; external suite unavailable** | Notebook `test_all_functions`, `test_edge_cases`, and `test_data_validation` pass. No `project_tests.py` was found in this checkout. |
 
-## Criteria and Evidence
+## Part I & II: Data Exploration & Create Rank Based Recommendations
 
-| Rubric criterion | Status on bundled sample | Evidence / remaining limitation |
-| --- | --- | --- |
-| Notebook code executes and produces visible results | **PASS** | All code cells have successful executions; both charts render; notebook diagnostics report no errors. |
-| All tests pass | **PASS locally** | `test_all_functions()`, `test_edge_cases()`, and `test_data_validation()` pass. No separate `project_tests.py` is included in this checkout. |
-| Data exploration values are correct | **PASS for sample** | 172 interactions, 30 users, 20 interacted articles, 20 metadata articles, median 6.0, max per user 6, max article views 9, most viewed article 4. Exact values are asserted by `sol_1_test()`. |
-| Rank-based article recommendations | **PASS** | Top IDs and names are computed from interaction counts; exported in `results/top_articles.csv`. |
-| User-item matrix and similar users | **PASS for sample** | Binary 30 × 20 matrix. Similar users are returned as an ordered Python list; `user_item=` and `user_item_matrix=` forms are tested. The `email` schema is covered by a fixture. |
-| Reviewer numeric similar-user benchmarks | **NOT VERIFIED** | Expected IDs (including 3933, 4201, and 5077) are not in the bundled 30-user sample. Assertions run conditionally when all expected IDs exist; the full IBM interactions were not supplied. |
-| TF-IDF/LSA/K-Means cluster selection | **PASS for sample** | Inertia elbow selected `k=12` from the feasible `2–19` range. See `results/charts/kmeans_inertia_elbow.png` and `results/kmeans_inertia_points.csv`. |
-| Cluster-based content recommendations | **PASS** | Recommendations are restricted to the seed/user-history cluster and ranked by overall interaction popularity. User and article examples are exported under `results/recommendations_example_*.csv`. |
-| SVD latent-feature selection | **PASS for sample** | Holdout RMSE and explained variance are measured over 1–19 feasible components. Five components were selected: RMSE 0.3924, explained variance 81.43%. See `results/svd_feature_metrics.csv`. |
-| Reviewer target of 200 SVD features | **FEASIBLE, NOT VERIFIED** | The canonical interaction matrix has 714 article columns, so 200 is dimensionally feasible and is included in the candidate evaluation range. This bundled sample has only 20 columns and cannot evaluate 200; no full-data performance result is claimed. |
-| SVD article-article recommendations | **PASS for sample** | `get_svd_similar_article_ids` uses item vectors from reduced `Vᵀ` and maps positions through `user_item_matrix.columns`. Alignment tests pass. |
-| Written results and production evaluation discussion | **PASS** | Notebook describes method trade-offs, metrics, and A/B testing considerations. |
+**Initial reviewer status:** FAIL. Validation checked keys rather than the values.
 
-## Bundled Sample Statistics
+**Current status:** **PASS for bundled sample; canonical IBM profile NOT VERIFIED.** `sol_1_test(sol_1_dict)` checks all eight values.
 
-| Statistic | Value |
+| Variable | Sample value |
 | --- | ---: |
 | `median_val` | 6.0 |
 | `user_article_interactions` | 172 |
@@ -38,28 +31,52 @@
 | `unique_users` | 30 |
 | `total_articles` | 20 |
 
-## Canonical Reviewer Reference
+Top ten articles each have 9 interactions. See [rank output](../results/top_articles.csv).
 
-The reviewer supplied these expected values for the full IBM corpus. The notebook recognizes this profile and validates against it when matching full data is loaded; these values were not reproduced locally:
+## Part III: Collaborative Filtering
 
-| Statistic | Expected full-dataset value |
+**Initial reviewer status:** FAIL. Similar users were returned as a Pandas object and the benchmark outputs were missing.
+
+**Current status:** **PASS for sample and alternate schema; numeric full-data benchmarks NOT VERIFIED.** The function returns a Python list ordered by shared-interaction dot product, excludes the query user, supports optional truncation, and accepts either user-key schema.
+
+The sample matrix is binary with shape `30 × 20` and sparsity `71.33%`. Sample user 1 neighbors begin `[8, 22, 29, 15, 6]`. A synthetic `email`-key fixture verifies ordering and recommendation behavior.
+
+The reviewer’s expected numeric benchmark IDs include 3933, 4201, and 5077, which are not in the bundled sample. These exact lists are asserted only when all benchmark IDs exist in the loaded matrix.
+
+## Part IV: Create Rank Based Recommendations
+
+**Initial reviewer status:** FAIL. Content recommendations did not apply cluster membership first and popularity ranking second.
+
+**Current status:** **PASS for bundled sample; full-data elbow NOT VERIFIED.** Content text is transformed with TF-IDF and LSA before K-Means. The inertia elbow selects `k=12` from sample candidates `2–19`; recommendations are restricted to the seed/history cluster and ranked by global interaction popularity.
+
+For this sample, the article corpus has 20 items, so `k≈50` cannot be fit. The reviewer’s canonical article-content corpus has 1,051 articles, where 50 candidate clusters are feasible. See the [inertia chart](../results/charts/kmeans_inertia_elbow.png) and [inertia datapoints](../results/kmeans_inertia_points.csv).
+
+## Part V: Matrix Factorization
+
+**Initial reviewer status:** FAIL. Latent-feature choice lacked a performance-based rationale, and item IDs could be misaligned with SVD vectors.
+
+**Current status:** **PASS for bundled sample; canonical 200-feature result NOT VERIFIED.** Holdout RMSE and explained variance are plotted for feasible dimensions. The sample selects 5 of 19 feasible features with RMSE `0.3924` and explained variance `81.43%`. `get_svd_similar_article_ids` maps reduced item vectors through `user_item_matrix.columns`.
+
+The canonical matrix has 714 article columns, so 200 features are feasible and evaluated when full inputs are loaded. No full-data performance result is claimed without those inputs. See the [feature chart](../results/charts/svd_feature_selection.png) and [SVD datapoints](../results/svd_feature_metrics.csv).
+
+## Canonical Values from Reviewer
+
+These are the reviewer-provided targets for the full IBM data. They are reference values, not results from the local sample run.
+
+| Statistic | Canonical target |
 | --- | ---: |
-| `median_val` | 3.0 |
-| `user_article_interactions` | 45,993 |
-| `max_views_by_user` | 364 |
-| `max_views` | 937 |
-| `most_viewed_article_id` | `1429.0` |
-| `unique_articles` | 714 |
-| `unique_users` | 5,148 |
-| `total_articles` | 1,051 |
+| Median interactions per user | 3.0 |
+| Total interactions | 45,993 |
+| Maximum interactions by user | 364 |
+| Maximum views by article | 937 |
+| Most-viewed article ID | `1429.0` |
+| Unique interacted articles | 714 |
+| Unique users | 5,148 |
+| Metadata articles | 1,051 |
 
-The full corpus permits evaluating up to 50 text clusters (1,051 articles) and 200 SVD components (714 interaction-matrix columns). The actual selected values must be supported by metrics computed from those full files.
+## Validation Artifacts
 
-## Review Artifacts
-
-- [Execution results](EXECUTION_RESULTS.md)
+- [Latest execution results](EXECUTION_RESULTS.md)
+- [Reviewer findings, fixes, and PASS/FAIL comments](../REVIEWER_FEEDBACK_AND_FIXES.md)
 - [Machine-readable metrics](../results/review_metrics.json)
-- [K-Means elbow plot](../results/charts/kmeans_inertia_elbow.png)
-- [SVD feature plot](../results/charts/svd_feature_selection.png)
-- [Inertia datapoints](../results/kmeans_inertia_points.csv)
-- [SVD feature datapoints](../results/svd_feature_metrics.csv)
+- [Notebook](../recommendationsystem_ibmcommunity_analysis.ipynb)

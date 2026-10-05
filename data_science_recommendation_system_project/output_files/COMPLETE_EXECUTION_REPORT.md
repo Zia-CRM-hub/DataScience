@@ -1,93 +1,99 @@
 # IBM Community Recommendation System
 ## Complete Execution Report
 
-**Report date:** 2026-10-05
+**Execution/report date:** 2026-10-05
 
 **Notebook:** `recommendationsystem_ibmcommunity_analysis.ipynb`
 
 **Run profile:** Bundled sample data
 
-**Current project revision:** `7882fbf`
+**Notebook runtime:** Python 3.14.4
 
 ## Executive Summary
 
-The notebook's complete sample-data run succeeds. It loads the project CSVs, computes and validates exploration statistics, produces rank-based, collaborative, content-based, and SVD recommendations, generates both plots, runs edge/data validation, and exports review tables and metrics.
+The latest notebook execution completes successfully on the bundled sample. All code cells have successful execution records. Exploration, ranking, collaborative filtering, content recommendations, SVD, edge-case validation, data validation, and result export checks pass. Both requested charts render and are saved under `results/charts/`.
 
-The bundled files are a small sample (172 interactions, 30 users, and 20 article IDs), not the canonical full IBM corpus described by the reviewer. Results below are sample results. Canonical totals and numeric similar-user benchmarks are recorded as reference expectations but were not verified against full data.
+This run uses a small sample, not the full IBM dataset named in reviewer expectations. Accordingly, the report separates sample PASS results from canonical full-data checks that could not be reproduced locally. Historical September 3 figures in prior reports have been replaced with current sample measurements.
 
-## Data and Exploration
+## Input Data and Execution
 
-The loader searches the notebook/project locations for `user_item_interactions.csv` and `articles_community.csv`. `articles.csv` is optional. If both article tables are present, it selects the table containing more unique article IDs to avoid preferring stale sample metadata over a larger community corpus. Interaction tables may identify users with either `email` or `user_id`.
+The bundled project data consists of:
 
-| Measure | Sample result |
+| File | Role | Sample rows/items |
+| --- | --- | ---: |
+| `data/user_item_interactions.csv` | user/article interactions | 172 rows |
+| `data/articles.csv` | article titles and metadata | 20 unique articles |
+| `data/articles_community.csv` | content text for articles | 20 unique articles |
+
+The loader searches the project root and `data/`, accepts `user_id` or `email`, and requires the interaction and community-content CSVs. `articles.csv` is optional; if present alongside community metadata, the table with more unique article IDs is selected so a stale subset cannot mask a larger corpus.
+
+## Exploration Results
+
+| Metric | Result |
 | --- | ---: |
-| Interaction rows | 172 |
 | Unique users | 30 |
-| Unique articles in interactions | 20 |
-| Articles in metadata | 20 |
+| Interactions | 172 |
+| Unique interacted articles | 20 |
+| Metadata articles | 20 |
 | Median interactions per user | 6.0 |
 | Maximum interactions per user | 6 |
-| Maximum views per article | 9 |
-| Most-viewed article | 4 |
-| User-item matrix | 30 × 20 |
+| Maximum views for one article | 9 |
+| Most-viewed article ID | 4 |
+| User-item matrix shape | 30 × 20 |
 | Matrix sparsity | 71.33% |
 
-`sol_1_test(sol_1_dict)` compares all eight statistics against the sample profile. The canonical profile supplied in reviewer feedback is supported when the corresponding 45,993-row full dataset is loaded.
+All eight exploration fields are checked by `sol_1_test(sol_1_dict)` against the sample profile.
 
-## Recommendation Results
+## Recommendation Execution Details
 
-### Rank-Based
+### Rank-Based Recommendations
 
-Articles are ranked by total interaction count. In the sample, the top ten are tied at 9 interactions; deterministic article-ID ordering resolves ties. See [top_articles.csv](../results/top_articles.csv).
+The top ten article IDs are `4, 5, 11, 12, 18, 19, 1, 2, 8, 9`. Each has 9 interactions. Ties are deterministically ordered by article ID. The full table is [top_articles.csv](../results/top_articles.csv).
 
-### User-User Collaborative Filtering
+### Collaborative Filtering
 
-The binary user-item matrix is used to rank neighbors by shared-interaction dot product. `find_similar_users` excludes the query user and returns the complete ordered ID list by default; an optional `n_similar` limit is supported. Both `user_item=` and `user_item_matrix=` call forms are accepted.
+A binary `(30, 20)` user-item matrix was created. Similar users are returned as an ordered Python list based on shared-interaction dot product; the query user is excluded. Sample user 1's first five neighbors are `[8, 22, 29, 15, 6]`. The implementation supports either `user_id` or `email` keys and has passing tests for both matrix argument names.
 
-For sample user 1, the first five neighbors are `[8, 22, 29, 15, 6]`. New users receive popularity-ranked fallback recommendations. A synthetic email-key fixture verifies user lookup, similar-user ordering, and recommendations with the alternate `email` schema.
+For sample user 1, collaborative recommendations are exported to [recommendations_example_user_collaborative.csv](../results/recommendations_example_user_collaborative.csv). Cold-start behavior falls back to rank-based results.
 
 ### Content-Based Recommendations
 
-The content pipeline applies TF-IDF, reduces text with LSA/TruncatedSVD, fits K-Means, and selects the inertia elbow. For the 20-article sample, `k=12` is selected from candidates `2–19`. Content recommenders first restrict candidates to the same cluster, exclude already-read items where applicable, then rank candidates by interaction popularity.
+Article text is transformed using TF-IDF and LSA/TruncatedSVD before K-Means. The sample has 20 article texts, candidates `k=2–19`, and inertia-elbow selection `k=12`. Recommendations first filter to matching cluster membership, then rank candidates by overall interaction popularity.
 
-See the [K-Means inertia chart](../results/charts/kmeans_inertia_elbow.png), [inertia values](../results/kmeans_inertia_points.csv), and [cluster assignments](../results/article_cluster_assignments.csv).
+For seed article 1, sample article-content recommendation IDs are `[2, 4, 5, 8, 9, 3, 6, 7]`. See the [inertia chart](../results/charts/kmeans_inertia_elbow.png), [inertia data](../results/kmeans_inertia_points.csv), [cluster assignments](../results/article_cluster_assignments.csv), and [article recommendations](../results/recommendations_example_article_content.csv).
 
-### SVD
+### SVD and Article Neighbors
 
-The sample matrix supports at most 19 components. Deterministic holdout evaluation selected 5 components, with RMSE `0.3924` and cumulative explained variance `81.43%`. SVD item neighbors use reduced `Vᵀ` vectors mapped through `user_item_matrix.columns`; the sample neighbors for the first article are `[8, 15, 7, 14, 2]`.
+The sample's 20 item columns permit at most 19 components. Holdout evaluation selects 5 features with RMSE `0.3924` and cumulative explained variance `81.43%`. SVD item neighbors are computed from reduced `Vᵀ` vectors and mapped through `user_item_matrix.columns`.
 
-See the [SVD selection chart](../results/charts/svd_feature_selection.png), [feature metrics](../results/svd_feature_metrics.csv), and [sample SVD neighbors](../results/recommendations_example_article_svd.csv).
+Sample neighbor IDs for the first article are `[8, 15, 7, 14, 2]`. The [feature selection chart](../results/charts/svd_feature_selection.png), [feature datapoints](../results/svd_feature_metrics.csv), and [neighbor output](../results/recommendations_example_article_svd.csv) are available for inspection.
 
-## Validation
+## Test and Validation Results
 
-The notebook run completed these local checks successfully:
+| Validation | Result |
+| --- | --- |
+| `sol_1_test(sol_1_dict)` | PASS |
+| `test_all_functions()` | PASS |
+| `test_edge_cases()` | PASS |
+| `test_data_validation()` | PASS |
+| Email user-key fixture | PASS |
+| Optional/stale article metadata fixture | PASS |
+| Reviewer `max_components` and `user_item=` call forms | PASS |
+| Notebook diagnostics | No errors |
+| External `project_tests.py` | Not present in this checkout |
+| Canonical numeric similar-user ID lists | Not verified; required IDs are absent from sample |
 
-- Comprehensive rubric checks for exploration, ranked recommendations, matrix shape/values, collaborative recommendations, content clustering/ranking, and SVD mapping.
-- Exact `analyze_latent_features(user_item_matrix, max_components=10)` call.
-- `find_similar_users(..., user_item=user_item_matrix)` keyword form.
-- Email-key user fixture and article metadata fallback/coverage checks.
-- Edge-case assertions and dataset-integrity assertions.
-- Notebook diagnostics reported no errors; every code cell has a successful execution record.
+## Full IBM Dataset: Pending Reproduction
 
-The separate `project_tests.py` file was not included in this checkout. The supplied numeric benchmark lists were skipped because their user IDs are not in the bundled sample.
+The reviewer supplied canonical targets of 45,993 interactions, 5,148 users, 714 interacted article IDs, and 1,051 metadata articles, including median 3.0, maximum 364 interactions per user, maximum 937 views per article, and most-viewed article `1429.0`. The full CSVs were not available for this execution.
 
-## Canonical Full-Data Validation Still Needed
+With those full dimensions, 50 K-Means clusters and 200 SVD components are feasible. The code evaluates the relevant ranges, but the selected full-data elbow, 200-component holdout metrics, and user-ID benchmark lists remain unverified until the canonical files and official project tests are run.
 
-The reviewer’s full IBM reference is 45,993 interactions, 5,148 users, 714 interacted article IDs, and 1,051 metadata articles, with median 3.0, maximum 364 interactions per user, maximum 937 views for an article, and most-viewed article ID `1429.0`. Those canonical CSVs were not present during this run.
+## Report and Result Index
 
-On that full corpus, 50 K-Means clusters and 200 SVD components are dimensionally feasible. The notebook evaluates those candidate ranges when full data is loaded, but their selected metrics and the numeric user-neighbor benchmark lists remain to be confirmed against the full files.
-
-## Artifact Index
-
-- [Run metrics JSON](../results/review_metrics.json)
+- [Execution data and outputs](EXECUTION_RESULTS.md)
+- [Rubric status and evidence](RUBRIC_COMPLIANCE_REPORT.md)
+- [Reviewer findings, fixes, and PASS/FAIL comments](../REVIEWER_FEEDBACK_AND_FIXES.md)
+- [Machine-readable run metrics](../results/review_metrics.json)
 - [Exploration statistics](../results/exploration_statistics.csv)
-- [Top article ranking](../results/top_articles.csv)
-- [Article cluster assignments](../results/article_cluster_assignments.csv)
-- [Collaborative user recommendations](../results/recommendations_example_user_collaborative.csv)
-- [Content user recommendations](../results/recommendations_example_user_content.csv)
-- [Content article recommendations](../results/recommendations_example_article_content.csv)
-- [SVD article recommendations](../results/recommendations_example_article_svd.csv)
-- [Execution results](EXECUTION_RESULTS.md)
-- [Rubric compliance report](RUBRIC_COMPLIANCE_REPORT.md)
-
-The previous September 3 synthetic-data metrics have been replaced by this current sample-based report set.
+- [Example user-content recommendations](../results/recommendations_example_user_content.csv)
